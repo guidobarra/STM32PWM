@@ -143,16 +143,16 @@ void SystemClock_Config(void)
  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* TIM14 init function */
+/* TIM1 init function */
 static void MX_TIM1_Init(void)
 {
  TIM_OC_InitTypeDef sConfigOC;
- htimInstance = TIM14;
- htimInit.Prescaler = 7;
- htimInit.CounterMode = TIM_COUNTERMODE_UP;
- htimInit.Period = 1000;
- htimInit.ClockDivision = TIM_CLOCKDIVISION_DIV1;
- htimInit.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+ htim1.Instance = TIM1;
+ htim1.Init.Prescaler = 0;
+ htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+ htim1.Init.Period = 100;
+ htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+ htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
  {
  _Error_Handler(__FILE__, __LINE__);
@@ -169,6 +169,12 @@ static void MX_TIM1_Init(void)
  {
  _Error_Handler(__FILE__, __LINE__);
  }
+ 
+ HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+ //HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
+// HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
+// HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4);
+ 
  HAL_TIM_MspPostInit(&htim1);
 }
 
