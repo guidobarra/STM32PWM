@@ -32,13 +32,14 @@ int main(void)
  ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode)
 
  //Delay
- DelayInit()
+ DelayInit();
  
  //PWM
  HAL_Init();
  SystemClock_Config();
  MX_GPIO_Init();
  MX_TIM1_Init();
+ MX_TIM4_Init();
  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
  while (1)
@@ -143,14 +144,17 @@ void SystemClock_Config(void)
  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+//formula para el periodo, por default la frecuencia de los timer es de 16MHZ, APB_TIM_CLK=16Mhz
+//T = (1/APB_TIM_CLK in MHz) * (PRESCALER_Value + 1) * (PERIOD_Value + 1)
+//T = (1/16*10^6) * (99+1) * (3+1)=31,25us ==>  f=32Khz
 /* TIM1 init function */
 static void MX_TIM1_Init(void)
 {
  TIM_OC_InitTypeDef sConfigOC;
  htim1.Instance = TIM1;
- htim1.Init.Prescaler = 0;
+ htim1.Init.Prescaler = 4;
  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
- htim1.Init.Period = 100;
+ htim1.Init.Period = 99;
  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
@@ -176,6 +180,40 @@ static void MX_TIM1_Init(void)
 // HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4);
  
  HAL_TIM_MspPostInit(&htim1);
+}
+
+static void MX_TIM4_Init(void)
+{
+ TIM_OC_InitTypeDef sConfigOC;
+ htim4.Instance = TIM1;
+ htim4.Init.Prescaler = 4;
+ htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+ htim4.Init.Period = 99;
+ htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+ htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+ if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+ {
+ _Error_Handler(__FILE__, __LINE__);
+ }
+ if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+ {
+ _Error_Handler(__FILE__, __LINE__);
+ }
+ sConfigOC.OCMode = TIM_OCMODE_PWM1;
+ sConfigOC.Pulse = 0;
+ sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+ sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+ if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+ {
+ _Error_Handler(__FILE__, __LINE__);
+ }
+ 
+//HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1);
+ HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2);
+// HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_3);
+// HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4);
+ 
+ HAL_TIM_MspPostInit(&htim4);
 }
 
 /** Configure pins as
