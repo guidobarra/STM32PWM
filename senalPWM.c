@@ -28,8 +28,8 @@ int main(void)
  //ADC
  MX_ADC_Init();
  // start conversion
- ADC_Cmd (ADC1,ENABLE);	//enable ADC1
- ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode)
+ ADC_Cmd (ADC1,ENABLE);	//habilitar ADC1
+ ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// iniciar conversión (modo continuo)
 
  //Delay
  DelayInit();
@@ -45,13 +45,13 @@ int main(void)
  while (1)
  {
 
-	adc_value = ADC_GetConversionValue(ADC1);
+	adc_value = ADC_GetConversionValue(ADC1);//obtengo el valor
 	if(410<=adc_value && adc_value<=3686)
 	{
 		porVentanaOn = (uint8_t)(0,0245*adc_value - 0,012);
 		usTiempoOn = (uint32_t)(0,00824*adc_value - 0,37);
 		usDesfase = usTiempoOn/2;
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, porVentanaOn);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, porVentanaOn);//nuevo valor del ciclo de trabajo, para el canal el timer1 en el canal 1
 		DelayUs(usDesfase);
 		__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, porVentanaOn);
 	} else if(adc_value<=410) 
